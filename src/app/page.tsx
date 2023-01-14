@@ -1,91 +1,97 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
+"use client";
+import { useCallback } from "react";
 
-const inter = Inter({ subsets: ['latin'] })
+import ReactFlow, {
+	addEdge,
+	useNodesState,
+	useEdgesState,
+	MarkerType,
+	Controls,
+	Background,
+} from "reactflow";
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+import CustomNode from "../components/CustomNode";
+import FloatingEdge from "../components/FloatingEdge";
+import CustomConnectionLine from "../components/CustomConnectionLine";
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
+import "reactflow/dist/style.css";
 
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+const initialNodes: any[] = [
+	{
+		id: "1",
+		type: "custom",
+		position: { x: 0, y: 0 },
+	},
+	{
+		id: "2",
+		type: "custom",
+		position: { x: 250, y: 320 },
+	},
+	{
+		id: "3",
+		type: "custom",
+		position: { x: 40, y: 300 },
+	},
+	{
+		id: "4",
+		type: "custom",
+		position: { x: 300, y: 0 },
+	},
+];
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
+const initialEdges: any[] = [];
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+const connectionLineStyle = {
+	strokeWidth: 3,
+	stroke: "black",
+};
+
+const nodeTypes = {
+	custom: CustomNode,
+};
+
+const edgeTypes = {
+	floating: FloatingEdge,
+};
+
+const defaultEdgeOptions = {
+	style: { strokeWidth: 3, stroke: "black" },
+	type: "floating",
+	markerEnd: {
+		type: MarkerType.ArrowClosed,
+		color: "black",
+	},
+};
+
+const App = () => {
+	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+	const onConnect = useCallback(
+		(params: any) => setEdges((eds) => addEdge(params, eds)),
+		[setEdges]
+	);
+
+	return (
+		<main className="w-screen h-screen">
+			<ReactFlow
+				nodes={nodes}
+				edges={edges}
+				onNodesChange={onNodesChange}
+				onEdgesChange={onEdgesChange}
+				onConnect={onConnect}
+				fitView
+				nodeTypes={nodeTypes}
+				edgeTypes={edgeTypes}
+				defaultEdgeOptions={defaultEdgeOptions}
+				connectionLineComponent={CustomConnectionLine}
+				connectionLineStyle={connectionLineStyle}
+			>
+				<Controls />
+				<Background />
+			</ReactFlow>
+		</main>
+	);
+};
+
+export default App;
